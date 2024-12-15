@@ -1,21 +1,18 @@
 package main
 
 import (
+	"fmt"
 	// "fmt"
 
-	"TournamentProject/match"
 	"TournamentProject/player"
+	"TournamentProject/tournament"
 )
 
 func main() {
-	Salah := new(player.Player)
-	Yousry := new(player.Player)
-	Salah.NewPlayer("Salah", 193, 120, 5, 2, -120)
-	Yousry.NewPlayer("Yousry", 178, 74, 2, 4, -190)
-	// fmt.Println(Salah.GetAbility())
-	// fmt.Println(Salah.GetPassive())
-	Match := new(match.Match)
-	Match.NewMatch(*Salah, *Yousry)
-	Match.FirstBlow()
-	Match.FinishMatch()
+	players := player.CreatePlayers()
+	tournament, _ := tournament.NewTournament(players)
+
+	if tournament.Winner.Name != "" {
+		fmt.Println(tournament.Winner.Name)
+	}
 }
