@@ -9,7 +9,7 @@ import (
 
 type Match struct {
 	Players  [2]*player.Player
-	Winner   player.Player
+	Winner   *player.Player
 	Duration int
 	Finished bool
 }
@@ -46,11 +46,11 @@ func (match *Match) FinishMatch() *Match {
 	for i := 0; i < 33; i++ {
 		if match.Players[0].Hp == 0 {
 			match.Finished = true
-			match.Winner = *match.Players[0]
+			match.Winner = match.Players[0]
 			return match
 		} else if match.Players[1].Hp == 0 {
 			match.Finished = true
-			match.Winner = *match.Players[1]
+			match.Winner = match.Players[1]
 		}
 		match.matchHit(match.Players[0], match.Players[1])
 		match.matchHit(match.Players[1], match.Players[0])

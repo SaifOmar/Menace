@@ -4,15 +4,13 @@ import (
 	"fmt"
 	// "fmt"
 
-	"TournamentProject/player"
+	// "TournamentProject/player"
 	"TournamentProject/tournament"
 )
 
 func main() {
-	players := player.CreatePlayers()
-	tournament, _ := tournament.NewTournament(players)
-
-	if tournament.Winner.Name != "" {
-		fmt.Println(tournament.Winner.Name)
+	t := tournament.NewTournament()
+	if t.Winner != nil {
+		fmt.Println(t.Winner.Name)
 	}
 }

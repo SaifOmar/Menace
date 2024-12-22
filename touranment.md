@@ -1,16 +1,6 @@
 # Tournament
 It's a tournament engine
 
-what type of tournament will it be ?
-
-league champions ?
-league players?
-league matchmaking engine?
-
-maybe sometype of ufc or wrestling
-
-or maybe even myfriends ?
-
 yeah let's make it for my freinds lol
 
 give yousry he flashed message

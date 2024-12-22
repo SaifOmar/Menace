@@ -1,53 +1,72 @@
 package player
 
-type Eval int
-
-const (
-	terrible Eval = iota
-	bad
-	good
-	excelent
-	notEvenClose
+import (
+	"strconv"
+	"strings"
+	// "strings"
 )
 
-var evalName = map[Eval]string{
-	terrible:     "Terrible",
-	bad:          "Bad",
-	good:         "Good",
-	excelent:     "Excelent",
-	notEvenClose: "Not Even Close",
+// import "fmt"
+
+type Eval int
+
+// const (
+//
+//	terrible Eval = iota
+//	bad
+//	good
+//	excelent
+//	notEvenClose
+//
+// )
+var evalName = map[int]string{
+	0: "Terrible",
+	1: "Bad",
+	2: "Good",
+	3: "Excelent",
+	4: "Not Even Close",
 }
 
-func (e Eval) String() string {
-	return evalName[e]
-}
+// func (e Eval) String() string {
+// 	return evalName[e]
+// }
 
 type Record struct {
 	RecordArr     []bool
-	Evaluations   []Eval
-	winPercentage float64
+	Evaluations   []string
+	WinPercentage float64
 }
 
-func NewRecord(recordArr []bool, evals []Eval) *Record {
+func NewRecord(recordArr []bool) *Record {
 	return &Record{
-		RecordArr:     recordArr,
-		Evaluations:   evals,
-		winPercentage: 0.00,
+		RecordArr: recordArr,
+		// Evaluations:   evals,
+		WinPercentage: 0.00,
 	}
 }
 
-func (r *Record) CalculateWinPercentage() (float64, error) {
+func (r *Record) EvaluatePlayerPerformance(n int) string {
+	eval := evalName[n]
+	r.Evaluations = append(r.Evaluations, eval)
+	return eval
+}
+
+func (r *Record) GetNormalizedWp() string {
+	wp := r.WinPercentage
+	s := strconv.FormatFloat(wp, 'f', 1, 64)
+	b := strings.Split(s, ".")
+	s = "%" + b[0]
+	return s
+}
+
+func (r *Record) CalculateWinPercentage() int {
 	winCount := 0
 	nMatches := len(r.RecordArr)
-	if nMatches == 0 {
-		r.winPercentage = 0.00
-		return r.winPercentage, nil
-	}
 	for _, record := range r.RecordArr {
 		if record {
 			winCount += 1
 		}
 	}
-	r.winPercentage = float64((winCount/nMatches)*100 + int(r.winPercentage))
-	return r.winPercentage, nil
+	r.WinPercentage = float64((winCount/nMatches)*100 + int(r.WinPercentage))
+	return int(r.WinPercentage)
 }
