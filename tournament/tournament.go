@@ -2,7 +2,7 @@ package tournament
 
 import (
 	"fmt"
-	"runtime"
+	// "runtime"
 	// "strings"
 
 	"TournamentProject/match"
@@ -80,10 +80,6 @@ type Tournament struct {
 	Winner  *player.Player
 }
 
-func (t *Tournament) RefreshPlayers() {
-	t.mm.playersPool = t.Players
-}
-
 func NewTournament() *Tournament {
 	Players := CreatePlayers()
 	t := &Tournament{
@@ -91,38 +87,26 @@ func NewTournament() *Tournament {
 		mm:      NewMatchMaker(Players),
 	}
 
-	count := 0
-	for t.Winner == nil {
-		if len(t.mm.playersPool) == 0 {
-			t.RefreshPlayers()
-		}
-		m, matchmaker := t.mm.MakeMatch()
+	for range 1000 {
+
+		m, _ := t.mm.MakeMatch()
 		t.saveMatch(m)
-		fmt.Println("mwiner", m.Winner.Name, m.Winner.Elo)
-		other := m.Players
-		for _, p := range other {
-			if p != m.Winner {
-				fmt.Println("mlost", p.Name, p.Elo)
-			}
-		}
+
 		if m.Winner.Elo >= 3200 {
 			t.Winner = m.Winner
-			fmt.Println(t.Winner.Name, "has won")
+			fmt.Println(t.Winner.Name, "has won and his elo is: ", t.Winner.Elo, "\n")
+			for _, p := range t.Players {
+				fmt.Println(p.Name, ": ", p.Elo)
+			}
 			break
 		}
-		if t.Winner == nil {
-			matchmaker.MakeMatch()
-		}
 	}
-	fmt.Println(count)
-	runtime.Gosched()
 
 	return t
 }
 
 func (t *Tournament) saveMatch(m *match.Match) {
 	t.Matches = append(t.Matches, *m)
-
 	records := generatePlayerRecords(m)
 	t.Records = append(t.Records, records...)
 }
@@ -133,10 +117,9 @@ func generatePlayerRecords(m *match.Match) []player.Record {
 		winner := (m.Winner.Name == p.Name)
 		p.RecordArr = append(p.RecordArr, winner)
 		records = append(records, p.Record)
-		p.CalculateWinPercentage()
+		// p.CalculateWinPercentage()
 		p.EvaluatePlayerPerformance(0)
 
-		// fmt.Println(p.Name, p.Elo)
 	}
 
 	return records

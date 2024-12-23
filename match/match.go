@@ -25,6 +25,7 @@ func NewMatch(players [2]*player.Player) *Match {
 		Finished: false,
 		Duration: 10,
 	}
+	// fmt.Println("hello from new match")
 	M.FirstBlow()
 	return M
 }
@@ -43,7 +44,7 @@ func (match *Match) FirstBlow() *Match {
 }
 
 func (match *Match) FinishMatch() *Match {
-	for i := 0; i < 33; i++ {
+	for !match.Finished {
 		if match.Players[0].Hp == 0 {
 			match.Finished = true
 			match.Winner = match.Players[0]

@@ -10,6 +10,8 @@ type Player struct {
 	Hp  int
 	Elo int
 
+	AdjustedElo int
+
 	Strengh int
 	Stamina int
 	Iq      int
@@ -20,21 +22,26 @@ type Player struct {
 	Passive Ability
 	Ability Ability
 
+	NMatches int
+	WP       float64
+	WinCount int
+
 	Record
 }
 
 func NewPlayer(name string, height int, weight int, strength int, stamina int, iq int, passiveAbility Ability, firstAbility Ability) *Player {
 	player := &Player{
-		Hp:      100,
-		Elo:     900,
-		Name:    name,
-		Height:  height,
-		Weight:  weight,
-		Strengh: strength,
-		Stamina: stamina,
-		Iq:      iq,
-		Passive: passiveAbility,
-		Ability: firstAbility,
+		Hp:          100,
+		Elo:         900,
+		Name:        name,
+		Height:      height,
+		Weight:      weight,
+		Strengh:     strength,
+		Stamina:     stamina,
+		Iq:          iq,
+		Passive:     passiveAbility,
+		Ability:     firstAbility,
+		AdjustedElo: 900,
 	}
 	return player
 }

@@ -2,11 +2,11 @@ package tournament
 
 import (
 	// "fmt"
-	"fmt"
 	"math"
 	"math/rand"
-	"slices"
-	"sort"
+
+	// "slices"
+	// "sort"
 
 	"TournamentProject/helpers"
 
@@ -15,22 +15,86 @@ import (
 )
 
 type MatchMaker struct {
-	playersPool []*player.Player
-	seen        map[string]int // keeps track of hwo many times playes have played
-	k           int
-	round       int
-	playerQueue *helpers.PlayerQueue
+	playersPool   []*player.Player
+	mS            []*player.Player
+	seen          map[string]int // keeps track of hwo many times playes have played
+	k             int
+	round         int
+	RoundFinished bool
+	playerQueue   *helpers.PlayerQueue
 }
 
 func NewMatchMaker(players []*player.Player) *MatchMaker {
 	mM := &MatchMaker{
-		playersPool: players,
-		seen:        make(map[string]int, len(players)),
-		k:           100,
-		round:       0,
-		playerQueue: &helpers.PlayerQueue{},
+		playersPool:   players,
+		mS:            make([]*player.Player, len(players)),
+		seen:          make(map[string]int, len(players)),
+		k:             100,
+		round:         0,
+		RoundFinished: false,
+		playerQueue:   &helpers.PlayerQueue{},
 	}
 	return mM
+}
+
+func QuickSort(players *[]*player.Player, low, high int) {
+	if low < high {
+		pi := partition(players, low, high)
+		QuickSort(players, low, pi-1)
+		QuickSort(players, pi+1, high)
+	}
+}
+
+func partition(players *[]*player.Player, low, high int) int {
+	pivot := (*players)[high].AdjustedElo
+	i := low - 1
+	for j := low; j <= high-1; j++ {
+		// If current player has Elo less than or equal to pivot, swap them
+		if (*players)[j].AdjustedElo <= pivot {
+			i++
+			(*players)[i], (*players)[j] = (*players)[j], (*players)[i]
+		}
+	}
+	// Swap the pivot with the element at i+1
+	(*players)[i+1], (*players)[high] = (*players)[high], (*players)[i+1]
+	return i + 1
+}
+
+// returns array of 2 players that have the lowest Elo diff to play the next match
+// ended up not using it
+func minDiffThatShit(pSlice *[]*player.Player) []*player.Player {
+	s := *pSlice
+	l := len(s)
+
+	QuickSort(pSlice, 0, l-1)
+
+	minDiff := math.MaxInt
+	var res [][]*player.Player
+
+	for i := 0; i < l-1; i++ {
+		diff := s[i+1].AdjustedElo - s[i].AdjustedElo
+		if diff < minDiff {
+			minDiff = diff
+			tempArr := []*player.Player{s[i], s[i+1]}
+			res = [][]*player.Player{tempArr}
+		}
+	}
+
+	if len(res) == 0 {
+		return nil
+	}
+
+	return res[0]
+}
+
+func adjustMeStepBro(slice *[]*player.Player) {
+	s := *slice
+	for _, p := range s {
+
+		sm := ((p.WP/5.0 - 10.0) / 100.0 * 2.0 * float64(p.Elo)) + float64(p.Elo)
+		p.AdjustedElo = int(sm)
+
+	}
 }
 
 func (matchMaker *MatchMaker) MakeMatch() (*match.Match, *MatchMaker) {
@@ -38,82 +102,82 @@ func (matchMaker *MatchMaker) MakeMatch() (*match.Match, *MatchMaker) {
 		m := firstRound(matchMaker)
 		return m, matchMaker
 	}
-	// var elos []int
-	var adjustedElos []int
-	eloDB := make(map[int]int)
-	for i, p := range matchMaker.playersPool {
-		curr := p.Elo
-		wp := int(p.WinPercentage)
-		adjust := curr + (((wp/5 - 10) / 100) * 2 * curr)
-		adjustedElos = append(adjustedElos, adjust)
-		// elos = append(elos, p.Elo)
-		eloDB[adjust] = i
+	if matchMaker.RoundFinished == true {
+		MS := make([]*player.Player, len(matchMaker.playersPool))
+		copy(MS, matchMaker.playersPool)
+		matchMaker.mS = MS
+		matchMaker.RoundFinished = false
 	}
-	fmt.Println(adjustedElos, matchMaker.playersPool)
 
-	bestEloMatch := findBestEloMatch(adjustedElos)
+	adjustMeStepBro(&matchMaker.mS)
+	QuickSort(&matchMaker.mS, 0, len(matchMaker.mS)-1)
+	ps := matchMaker.mS
 
-	fmt.Println("indexes")
-	fmt.Println(adjustedElos)
-	p1Index := eloDB[bestEloMatch[0]]
-	p2Index := eloDB[bestEloMatch[1]]
-	fmt.Println("indexes")
-	fmt.Println(p1Index, p2Index)
-	p1 := matchMaker.playersPool[p1Index]
-	p2 := matchMaker.playersPool[p2Index]
+	m := match.NewMatch([2]*player.Player{ps[0], ps[1]})
+	count := 0
+	for i := len(matchMaker.mS) - 1; i >= 0; i-- {
+		if count == 2 {
+			break
+		}
+		if matchMaker.mS[i].Name == ps[0].Name || matchMaker.mS[i].Name == ps[1].Name {
+			count++
+			helpers.DeleteSliceElement(&matchMaker.mS, i)
+		}
+	}
+	calculateElo(m, matchMaker.k)
+	calculateWinPercentage(m)
+	if len(matchMaker.mS) == 0 {
+		matchMaker.RoundFinished = true
+	}
 
-	m := match.NewMatch([2]*player.Player{p1, p2})
 	return m, matchMaker
 }
 
-func sortMapByElo(elos map[string]int) map[string]int {
-	keys := make([]string, 0, len(elos))
-	for k := range elos {
-		keys = append(keys, k)
+func calculateWinPercentage(m *match.Match) {
+	for _, p := range m.Players {
+		p.WP = float64(p.WinCount) * 100 / float64(p.NMatches)
 	}
-
-	sort.SliceStable(keys, func(i, j int) bool {
-		return elos[keys[i]] < elos[keys[j]]
-	})
-	return elos
 }
 
 func calculateElo(m *match.Match, k int) {
 	m.Winner.Elo += k
+	m.Winner.WinCount++
+	m.Players[1].NMatches += 1
+	m.Players[0].NMatches += 1
 	if m.Winner == m.Players[0] {
-		m.Players[1].Elo -= k
+		m.Players[1].Elo -= k / 2
 	} else {
-		m.Players[0].Elo -= k
+		m.Players[0].Elo -= k / 2
 	}
 }
 
 func firstRound(mM *MatchMaker) *match.Match {
-	fmt.Println("hewe")
-	length := len(mM.playersPool)
+	length := copy(mM.mS, mM.playersPool)
 
-	fmt.Println(len(mM.playersPool), mM.playersPool)
 	n1 := Random(length)
 	n2 := Random(length)
 	for n2 == n1 {
 		n2 = Random(length)
 	}
-	fmt.Println(n1, n2)
-	p1 := mM.playersPool[n1]
-	p2 := mM.playersPool[n2]
-	if n1 > n2 {
-		helpers.DeleteSliceElement(&mM.playersPool, n1)
-		helpers.DeleteSliceElement(&mM.playersPool, n2)
-	} else {
-		helpers.DeleteSliceElement(&mM.playersPool, n2)
-		helpers.DeleteSliceElement(&mM.playersPool, n1)
-	}
+	p1 := mM.mS[n1]
+	p2 := mM.mS[n2]
 
 	players := [2]*player.Player{p1, p2}
 	m := match.NewMatch(players)
+
 	calculateElo(m, mM.k)
-	fmt.Println("pr")
-	if len(mM.playersPool) == 0 {
+	calculateWinPercentage(m)
+	if n1 > n2 {
+		helpers.DeleteSliceElement(&mM.mS, n1)
+		helpers.DeleteSliceElement(&mM.mS, n2)
+	} else {
+		helpers.DeleteSliceElement(&mM.mS, n2)
+		helpers.DeleteSliceElement(&mM.mS, n1)
+	}
+
+	if len(mM.mS) == 0 {
 		mM.round = 1
+		mM.RoundFinished = true
 		return m
 	}
 
@@ -121,36 +185,8 @@ func firstRound(mM *MatchMaker) *match.Match {
 }
 
 func Random(n int) int {
-	return rand.Intn(n)
-}
-
-func findBestEloMatch(elos []int) []int {
-	slices.Sort(elos)
-	minDiff := math.MaxInt
-	// fmt.Println(elos)
-	var res [][]int
-	for i := range len(elos) - 1 {
-		// fmt.Println("here 5")
-		diff := elos[i+1] - elos[i]
-
-		// fmt.Println(diff)
-		if diff <= minDiff {
-
-			// fmt.Println("here 9")
-			minDiff = diff
-
-			tempArr := []int{elos[i], elos[i+1]}
-			res = append(res, tempArr)
-
-			// fmt.Println("here 2")
-			if minDiff <= (res[0][1] - res[0][0]) {
-				// fmt.Println("here 3")
-				res = res[:1]
-			}
-
-		}
-
+	if n == 1 {
+		n++
 	}
-	// fmt.Println(res)
-	return res[0]
+	return rand.Intn(n)
 }
