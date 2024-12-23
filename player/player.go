@@ -1,12 +1,14 @@
 package player
 
-import (
+import "fmt"
+
 // "fmt"
 // "time"
 // "math/rand"
-)
 
 type Player struct {
+	Name string
+
 	Hp  int
 	Elo int
 
@@ -17,7 +19,6 @@ type Player struct {
 	Iq      int
 	Height  int
 	Weight  int
-	Name    string
 
 	Passive Ability
 	Ability Ability
@@ -25,6 +26,8 @@ type Player struct {
 	NMatches int
 	WP       float64
 	WinCount int
+
+	skillLevel float64
 
 	Record
 }
@@ -43,6 +46,8 @@ func NewPlayer(name string, height int, weight int, strength int, stamina int, i
 		Ability:     firstAbility,
 		AdjustedElo: 900,
 	}
+	player.skillLevel = player.calculateSkillLevel()
+	fmt.Println("sk: ", player.skillLevel)
 	return player
 }
 
@@ -66,4 +71,57 @@ func (player *Player) getHit(damage int) int {
 		player.Hp = 0
 	}
 	return player.Hp
+}
+
+func (p Player) calculateSkillLevel() float64 {
+	v := map[string]float64{
+		"iq":       float64(p.Iq),
+		"stamina":  float64(p.Stamina),
+		"strength": float64(p.Strengh),
+		"weight":   float64(p.Weight),
+		"height":   float64(p.Height),
+	}
+	w := map[string]float64{
+		"iq":       0.3,
+		"stamina":  0.15,
+		"strength": 0.3,
+		"weight":   0.15,
+		"height":   0.1,
+	}
+
+	v = normlizeValues(v)
+
+	skillLevel := 0.0
+	for k := range v {
+		skillLevel = skillLevel + (w[k] * float64(v[k]))
+	}
+	return skillLevel
+}
+
+func normlizeValues(v map[string]float64) map[string]float64 {
+	min := map[string]float64{
+		"iq":       40,
+		"stamina":  10,
+		"strength": 10,
+		"height":   135,
+		"weight":   50,
+	}
+	max := map[string]float64{
+		"iq":       180,
+		"stamina":  100,
+		"strength": 100,
+		"height":   222,
+		"weight":   140,
+	}
+	for k := range v {
+		if v[k] > max[k] {
+			v[k] = max[k]
+		}
+		if v[k] < min[k] {
+			v[k] = min[k]
+		}
+		v[k] = (v[k] - min[k]) / (max[k] - min[k])
+	}
+
+	return v
 }

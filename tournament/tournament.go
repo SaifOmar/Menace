@@ -12,7 +12,7 @@ import (
 func CreatePlayers() []*player.Player {
 	var players []*player.Player
 	playerData := map[int][]interface{}{
-		0: {"slta", 185, 85, 10, 10, 200},
+		0: {"slta", 185, 85, 10, 30, 200},
 		1: {"salah", 192, 120, 3, 4, -120},
 		2: {"yousry", 192, 120, 3, 4, -120},
 		3: {"okl", 192, 120, 3, 4, -120},
