@@ -127,6 +127,5 @@ func generatePlayerRecords(m *match.Match) []player.Record {
 	return records
 }
 
-func (t *Tournament) Log(message string) {
-	fmt.Println(message)
+func (t *Tournament) Log() {
 }
