@@ -81,3 +81,9 @@ v = 0.0.1
 1. Players have attributes that are the stats and abilites
 2. The passive and ability methods are given the abilites attributes when called
 3. the special attributes should do something (no?)
+
+--I want to be able to log with the log interface
+--how can I do this ?
+I want to have a logger interface that Every struct can emplement
+how can this be done ?
+let's try something real quik
