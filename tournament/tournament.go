@@ -2,6 +2,7 @@ package tournament
 
 import (
 	"fmt"
+
 	// "runtime"
 	// "strings"
 
@@ -11,6 +12,7 @@ import (
 
 func CreatePlayers() []*player.Player {
 	var players []*player.Player
+
 	playerData := map[int][]interface{}{
 		0: {"slta", 185, 85, 10, 30, 200},
 		1: {"salah", 192, 120, 3, 4, -120},
@@ -123,4 +125,8 @@ func generatePlayerRecords(m *match.Match) []player.Record {
 	}
 
 	return records
+}
+
+func (t *Tournament) Log(message string) {
+	fmt.Println(message)
 }
