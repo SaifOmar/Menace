@@ -10,7 +10,7 @@ type logger interface {
 	Log(level, message string)
 	Error(mesage string)
 	Info(mesage string)
-	GetLogs() string
+	GetLogs()
 }
 
 type TournamentLogger struct {
@@ -29,8 +29,8 @@ func NewTournamentLogger(logToFile bool, fileName string) *TournamentLogger {
 }
 
 func (l *TournamentLogger) Log(level, message string) {
-	timeStamp := time.Now().Format("2025-01-01 15:04:03")
-	logEntry := fmt.Sprintf("[%s],[%s],%s", timeStamp, level, message)
+	timeStamp := time.Now().Local().Format(time.ANSIC)
+	logEntry := fmt.Sprintf("[%s],[%s] : %s", timeStamp, level, message)
 	l.logs = append(l.logs, logEntry)
 	if l.logToFile {
 		l.writeToFile(logEntry)
@@ -45,8 +45,8 @@ func (l *TournamentLogger) Error(message string) {
 	l.Log("ERROR", message)
 }
 
-func (l *TournamentLogger) GetLogs(message string) string {
-	return fmt.Sprintf("%s", l.logs)
+func (l *TournamentLogger) GetLogs() {
+	fmt.Printf("%s", l.logs)
 }
 
 func (l *TournamentLogger) writeToFile(logEntry string) {

@@ -6,6 +6,7 @@ import (
 	// "runtime"
 	// "strings"
 
+	"TournamentProject/helpers"
 	"TournamentProject/match"
 	"TournamentProject/player"
 )
@@ -80,25 +81,27 @@ type Tournament struct {
 	Players []*player.Player
 	mm      *MatchMaker
 	Winner  *player.Player
+	Logger  *helpers.TournamentLogger
 }
 
-func NewTournament() *Tournament {
+func NewTournament(logger *helpers.TournamentLogger) *Tournament {
 	Players := CreatePlayers()
 	t := &Tournament{
 		Players: Players,
-		mm:      NewMatchMaker(Players),
+		Logger:  logger,
+		mm:      NewMatchMaker(Players, logger),
 	}
 
-	for range 1000 {
-
+	for {
 		m, _ := t.mm.MakeMatch()
 		t.saveMatch(m)
 
 		if m.Winner.Elo >= 3200 {
 			t.Winner = m.Winner
-			fmt.Println(t.Winner.Name, "has won and his elo is: ", t.Winner.Elo, "\n")
+			t.Logger.Info(fmt.Sprintf("%s Has won the tournament and with elo of: %d ", t.Winner.Name, t.Winner.Elo))
+			t.Logger.Info("Players : 👇")
 			for _, p := range t.Players {
-				fmt.Println(p.Name, ": ", p.Elo)
+				t.Logger.Info(fmt.Sprintf("Player: %s | Elo : %d", p.Name, p.Elo))
 			}
 			break
 		}
@@ -125,7 +128,4 @@ func generatePlayerRecords(m *match.Match) []player.Record {
 	}
 
 	return records
-}
-
-func (t *Tournament) Log() {
 }

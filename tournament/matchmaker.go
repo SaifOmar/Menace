@@ -5,9 +5,6 @@ import (
 	"math"
 	"math/rand"
 
-	// "slices"
-	// "sort"
-
 	"TournamentProject/helpers"
 
 	"TournamentProject/match"
@@ -17,22 +14,20 @@ import (
 type MatchMaker struct {
 	playersPool   []*player.Player
 	mS            []*player.Player
-	seen          map[string]int // keeps track of hwo many times playes have played
 	k             int
 	round         int
 	RoundFinished bool
-	playerQueue   *helpers.PlayerQueue
+	Logger        *helpers.TournamentLogger
 }
 
-func NewMatchMaker(players []*player.Player) *MatchMaker {
+func NewMatchMaker(players []*player.Player, logger *helpers.TournamentLogger) *MatchMaker {
 	mM := &MatchMaker{
 		playersPool:   players,
 		mS:            make([]*player.Player, len(players)),
-		seen:          make(map[string]int, len(players)),
 		k:             100,
 		round:         0,
 		RoundFinished: false,
-		playerQueue:   &helpers.PlayerQueue{},
+		Logger:        logger,
 	}
 	return mM
 }
@@ -90,19 +85,19 @@ func minDiffThatShit(pSlice *[]*player.Player) []*player.Player {
 func adjustMeStepBro(slice *[]*player.Player) {
 	s := *slice
 	for _, p := range s {
-
-		sm := ((p.WP/5.0 - 10.0) / 100.0 * 2.0 * float64(p.Elo)) + float64(p.Elo)
-		p.AdjustedElo = int(sm)
+		adjustedWp := ((p.WP/5.0 - 10.0) / 100.0 * 2.0 * float64(p.Elo)) + float64(p.Elo)
+		p.AdjustedElo = int(adjustedWp)
 
 	}
 }
 
 func (matchMaker *MatchMaker) MakeMatch() (*match.Match, *MatchMaker) {
 	if matchMaker.round == 0 {
+		matchMaker.Logger.Info("First Round Has started")
 		m := firstRound(matchMaker)
 		return m, matchMaker
 	}
-	if matchMaker.RoundFinished == true {
+	if matchMaker.RoundFinished {
 		MS := make([]*player.Player, len(matchMaker.playersPool))
 		copy(MS, matchMaker.playersPool)
 		matchMaker.mS = MS
@@ -113,7 +108,7 @@ func (matchMaker *MatchMaker) MakeMatch() (*match.Match, *MatchMaker) {
 	QuickSort(&matchMaker.mS, 0, len(matchMaker.mS)-1)
 	ps := matchMaker.mS
 
-	m := match.NewMatch([2]*player.Player{ps[0], ps[1]})
+	m := match.NewMatch([2]*player.Player{ps[0], ps[1]}, matchMaker.Logger)
 	count := 0
 	for i := len(matchMaker.mS) - 1; i >= 0; i-- {
 		if count == 2 {
@@ -152,6 +147,7 @@ func calculateElo(m *match.Match, k int) {
 }
 
 func firstRound(mM *MatchMaker) *match.Match {
+	mM.Logger.Info("First Round Match")
 	length := copy(mM.mS, mM.playersPool)
 
 	n1 := Random(length)
@@ -163,7 +159,7 @@ func firstRound(mM *MatchMaker) *match.Match {
 	p2 := mM.mS[n2]
 
 	players := [2]*player.Player{p1, p2}
-	m := match.NewMatch(players)
+	m := match.NewMatch(players, mM.Logger)
 
 	calculateElo(m, mM.k)
 	calculateWinPercentage(m)
@@ -179,6 +175,8 @@ func firstRound(mM *MatchMaker) *match.Match {
 		mM.round = 1
 		mM.RoundFinished = true
 		return m
+	} else {
+		firstRound(mM)
 	}
 
 	return m

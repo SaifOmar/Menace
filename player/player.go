@@ -47,7 +47,7 @@ func NewPlayer(name string, height int, weight int, strength int, stamina int, i
 		AdjustedElo: 900,
 	}
 	player.skillLevel = player.calculateSkillLevel()
-	fmt.Println("sk: ", player.skillLevel)
+	fmt.Println("sk: ", player.skillLevel, player.Name)
 	return player
 }
 
