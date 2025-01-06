@@ -1,7 +1,6 @@
 package match
 
 import (
-	// "fmt"
 	"fmt"
 	"math/rand"
 
@@ -15,12 +14,6 @@ type Match struct {
 	Duration int
 	Finished bool
 	Logger   *helpers.TournamentLogger
-}
-
-func (match *Match) matchHit(hitter *player.Player, hittee *player.Player) {
-	match.Logger.Info(fmt.Sprintf("%s has hit %s", hitter.Name, hittee.Name))
-	hitter.Hit(hittee)
-	hitter.AbilityHit(hittee)
 }
 
 func NewMatch(players [2]*player.Player, logger *helpers.TournamentLogger) *Match {
@@ -50,19 +43,47 @@ func (match *Match) FirstBlow() *Match {
 }
 
 func (match *Match) FinishMatch() *Match {
-	for !match.Finished {
-		if match.Players[0].Hp == 0 {
-			match.Finished = true
-			match.Winner = match.Players[0]
-			return match
-		} else if match.Players[1].Hp == 0 {
-			match.Finished = true
-			match.Winner = match.Players[1]
-		}
-		match.matchHit(match.Players[0], match.Players[1])
-		match.matchHit(match.Players[1], match.Players[0])
-	}
+	match = match.runMatch()
 	match.Logger.Info("Match is over")
 	match.Logger.Info(fmt.Sprintf("%s has won the match", match.Winner.Name))
+	for _, p := range match.Players {
+		p.Hp = 100
+	}
 	return match
+}
+
+func (match *Match) randomHit() *Match {
+	n := helpers.Random(2)
+	if n == 1 {
+		match.matchHit(match.Players[n], match.Players[0])
+	} else {
+		match.matchHit(match.Players[n], match.Players[1])
+	}
+	return match
+}
+
+func (match *Match) runMatch() *Match {
+	for !match.Finished {
+		match = match.randomHit()
+	}
+
+	return match
+}
+
+func (match *Match) matchHit(hitter *player.Player, hittee *player.Player) {
+	hitter.Hit(hittee)
+	hitter.AbilityHit(hittee)
+	s := checkPlayerHp(hittee)
+	if s == "dead" {
+		match.Finished = true
+		match.Winner = hitter
+	}
+	match.Logger.Info(fmt.Sprintf("%s has hit %s and his hp is %d", hitter.Name, hittee.Name, hittee.Hp))
+}
+
+func checkPlayerHp(p *player.Player) string {
+	if p.Hp == 0 {
+		return "dead"
+	}
+	return "alive"
 }

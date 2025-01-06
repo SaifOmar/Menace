@@ -3,13 +3,13 @@ package tournament
 import (
 	"fmt"
 
-	// "runtime"
-	// "strings"
-
 	"TournamentProject/helpers"
 	"TournamentProject/match"
 	"TournamentProject/player"
 )
+
+func validatePlayerAttributes() {
+}
 
 func CreatePlayers() []*player.Player {
 	var players []*player.Player
@@ -124,8 +124,6 @@ func generatePlayerRecords(m *match.Match) []player.Record {
 		records = append(records, p.Record)
 		// p.CalculateWinPercentage()
 		p.EvaluatePlayerPerformance(0)
-
 	}
-
 	return records
 }

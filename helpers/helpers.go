@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"math/rand"
 	// "fmt"
 
 	"TournamentProject/player"
@@ -17,4 +18,11 @@ func DeleteSliceElement(slice *[]*player.Player, index int) *[]*player.Player {
 
 	*slice = newSlice
 	return slice
+}
+
+func Random(n int) int {
+	if n == 1 {
+		n++
+	}
+	return rand.Intn(n)
 }

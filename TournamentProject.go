@@ -14,11 +14,10 @@ func main() {
 	t := tournament.NewTournament(logger)
 	co := 0
 	for _, p := range t.Players {
-
-		fmt.Println("i, name, wp , elo: ", co, p.Name, p.WP, p.Elo)
+		fmt.Println("i, name, wp , elo, adjusted elo: ", co, p.Name, p.WP, p.Elo, p.AdjustedElo)
 		co++
 	}
-	t.Logger.GetLogs()
+	// t.Logger.GetLogs()
 	// if t.Winner != nil {
 	// 	// fmt.Println(t.Winner.Name)
 	// }

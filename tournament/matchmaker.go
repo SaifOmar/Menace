@@ -1,10 +1,8 @@
 package tournament
 
 import (
-	// "fmt"
 	"math"
-	"math/rand"
-
+	// "fmt"
 	"TournamentProject/helpers"
 
 	"TournamentProject/match"
@@ -150,10 +148,10 @@ func firstRound(mM *MatchMaker) *match.Match {
 	mM.Logger.Info("First Round Match")
 	length := copy(mM.mS, mM.playersPool)
 
-	n1 := Random(length)
-	n2 := Random(length)
+	n1 := helpers.Random(length)
+	n2 := helpers.Random(length)
 	for n2 == n1 {
-		n2 = Random(length)
+		n2 = helpers.Random(length)
 	}
 	p1 := mM.mS[n1]
 	p2 := mM.mS[n2]
@@ -180,11 +178,4 @@ func firstRound(mM *MatchMaker) *match.Match {
 	}
 
 	return m
-}
-
-func Random(n int) int {
-	if n == 1 {
-		n++
-	}
-	return rand.Intn(n)
 }
