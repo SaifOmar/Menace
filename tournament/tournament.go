@@ -15,15 +15,31 @@ func CreatePlayers() []*player.Player {
 	var players []*player.Player
 
 	playerData := map[int][]interface{}{
-		0: {"slta", 185, 85, 10, 30, 200},
-		1: {"salah", 192, 120, 3, 4, -120},
-		2: {"yousry", 192, 120, 3, 4, -120},
-		3: {"okl", 192, 120, 3, 4, -120},
+		// 1.name 2.height 3.weight 4.strenght 5.stamina 6.iq
 
-		4: {"joe", 192, 120, 3, 4, -120},
-		5: {"mahmod", 192, 120, 3, 4, -120},
-		6: {"mo7ie", 192, 120, 3, 4, -120},
-		7: {"fr5a", 192, 120, 3, 4, -120},
+		// min := map[string]float64{
+		// 	"iq":       40,
+		// 	"stamina":  10,
+		// 	"strength": 10,
+		// 	"height":   135,
+		// 	"weight":   50,
+		// }
+		// max := map[string]float64{
+		// 	"iq":       180,
+		// 	"stamina":  100,
+		// 	"strength": 100,
+		// 	"height":   222,
+		// 	"weight":   140,
+		// }
+		0: {"slta", 222, 85, 100, 100, 180},
+		1: {"salah", 192, 120, 50, 30, 114},
+		2: {"yousry", 172, 65, 40, 10, 40},
+		3: {"omar", 172, 75, 33, 40, 140},
+
+		4: {"joe", 180, 130, 11, 10, 90},
+		5: {"mahmod", 183, 70, 65, 85, 120},
+		6: {"mo7ie", 182, 90, 30, 22, 45},
+		7: {"fr5a", 171, 60, 10, 60, 41},
 	}
 
 	length := len(playerData)
@@ -56,14 +72,14 @@ func CreatePlayers() []*player.Player {
 
 func createAbilities(n string) (*player.Ability, *player.Ability) {
 	abilitiesData := map[string][]*player.Ability{
-		"salah":  {player.NewAbility("muh", "du", 10), player.NewAbility("some", "fu", 19)},
-		"yousry": {player.NewAbility("muh", "du", 10), player.NewAbility("some", "fu", 19)},
-		"joe":    {player.NewAbility("muh", "du", 10), player.NewAbility("some", "fu", 19)},
-		"okl":    {player.NewAbility("muh", "du", 10), player.NewAbility("some", "fu", 19)},
-		"slta":   {player.NewAbility("muh", "du", 10), player.NewAbility("some", "fu", 19)},
-		"mahmod": {player.NewAbility("muh", "du", 10), player.NewAbility("some", "fu", 19)},
-		"fr5a":   {player.NewAbility("muh", "du", 10), player.NewAbility("some", "fu", 19)},
-		"mo7ie":  {player.NewAbility("muh", "du", 10), player.NewAbility("some", "fu", 19)},
+		"salah":  {player.NewAbility("Not Even Close", "Salah is a shitter", 2), player.NewAbility("Calculated", "Luck is a myth it's all skill", 1)},
+		"yousry": {player.NewAbility("Ysta m3ah flash", "Yosry Has healed you", 0), player.NewAbility("Darrag el agnab", "Ignite top lane", 30)},
+		"joe":    {player.NewAbility("Brain Dmg", "Joe has donated brain dmg to you", 8), player.NewAbility("Lock Screen", "Joe is watching someone else's screen", 12)},
+		"omar":   {player.NewAbility("Bad Dad Joke BOMB", "Say Goodbye to your balls", 8), player.NewAbility("Retardness", "Omar has caused retardedness", 10)},
+		"slta":   {player.NewAbility("El dagger e5tfa", "Fe tez men", 10), player.NewAbility("Ya 3aaaaaaaaaaaaaaaam", "Report far5a", 19)},
+		"mahmod": {player.NewAbility("IQ LOSS", "7oda has traded his IQ for more dmg, (d5l bdma8o)", 40), player.NewAbility("Spotify", "Ya sa7by bt5onk kman bt2oly t3ala 3yzak", 20)},
+		"fr5a":   {player.NewAbility("EGGNITE", "Far5a laid an egg", 11), player.NewAbility("Wakaak", "Wak wak wakaaaaak", 9)},
+		"mo7ie":  {player.NewAbility("SubHuman", "What is this thing", 10), player.NewAbility("Absence", "Is anyone there?", 11)},
 	}
 
 	playerAbilities, exists := abilitiesData[n]
@@ -91,6 +107,7 @@ func NewTournament(logger *helpers.TournamentLogger) *Tournament {
 		Logger:  logger,
 		mm:      NewMatchMaker(Players, logger),
 	}
+	// t.Logger.Debug("StartDebugging")
 
 	for {
 		m, _ := t.mm.MakeMatch()
@@ -101,7 +118,7 @@ func NewTournament(logger *helpers.TournamentLogger) *Tournament {
 			t.Logger.Info(fmt.Sprintf("%s Has won the tournament and with elo of: %d ", t.Winner.Name, t.Winner.Elo))
 			t.Logger.Info("Players : 👇")
 			for _, p := range t.Players {
-				t.Logger.Info(fmt.Sprintf("Player: %s | Elo : %d", p.Name, p.Elo))
+				t.Logger.Info(fmt.Sprintf("Player: %s | Elo : %d | After : %d", p.Name, p.Elo, p.AdjustedElo))
 			}
 			break
 		}

@@ -1,7 +1,5 @@
 package player
 
-import "fmt"
-
 type Player struct {
 	Name string
 
@@ -30,8 +28,8 @@ type Player struct {
 
 func NewPlayer(name string, height int, weight int, strength int, stamina int, iq int, passiveAbility Ability, firstAbility Ability) *Player {
 	player := &Player{
-		Hp:          100,
-		Elo:         900,
+		Hp:          100, // calculated attr
+		Elo:         900, // base stat(something to calc dmg)
 		Name:        name,
 		Height:      height,
 		Weight:      weight,
@@ -41,9 +39,9 @@ func NewPlayer(name string, height int, weight int, strength int, stamina int, i
 		Passive:     passiveAbility,
 		Ability:     firstAbility,
 		AdjustedElo: 900,
+		WP:          100.00,
 	}
 	player.skillLevel = player.calculateSkillLevel()
-	fmt.Println("sk: ", player.skillLevel, player.Name)
 	return player
 }
 
@@ -79,8 +77,8 @@ func (p Player) calculateSkillLevel() float64 {
 		"iq":       0.3,
 		"stamina":  0.15,
 		"strength": 0.3,
-		"weight":   0.15,
-		"height":   0.1,
+		"weight":   0.125,
+		"height":   0.125,
 	}
 
 	v = normlizeValues(v)
@@ -119,3 +117,7 @@ func normlizeValues(v map[string]float64) map[string]float64 {
 
 	return v
 }
+
+// Arrmor , Dmg
+// hit (200 %80 less dmg)
+// ab1 dmg + ab2 dmg

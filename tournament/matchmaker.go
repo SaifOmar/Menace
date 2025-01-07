@@ -103,6 +103,9 @@ func (matchMaker *MatchMaker) MakeMatch() (*match.Match, *MatchMaker) {
 	}
 
 	adjustMeStepBro(&matchMaker.mS)
+	// for _, p := range matchMaker.mS {
+	// 	matchMaker.Logger.Debug(fmt.Sprintf("Name : %s, Wp : %f , Elo : %d, Adjsted : %d", p.Name, p.WP, p.Elo, p.AdjustedElo))
+	// }
 	QuickSort(&matchMaker.mS, 0, len(matchMaker.mS)-1)
 	ps := matchMaker.mS
 
