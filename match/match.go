@@ -71,6 +71,10 @@ func (match *Match) runMatch() *Match {
 }
 
 func (match *Match) matchHit(hitter *player.Player, hittee *player.Player) {
+	// 50% chance to call the get lucky
+	// if helpers.Random(100) > 50 {
+	// getLucky()
+	// }
 	hitter.Hit(hittee)
 	hitter.AbilityHit(hittee)
 	s := checkPlayerHp(hittee)

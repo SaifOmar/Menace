@@ -21,7 +21,7 @@ type Player struct {
 	WP       float64
 	WinCount int
 
-	skillLevel float64
+	SkillLevel float64
 
 	Record
 }
@@ -41,7 +41,7 @@ func NewPlayer(name string, height int, weight int, strength int, stamina int, i
 		AdjustedElo: 900,
 		WP:          100.00,
 	}
-	player.skillLevel = player.calculateSkillLevel()
+	player.SkillLevel = player.calculateSkillLevel()
 	return player
 }
 
