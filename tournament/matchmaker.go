@@ -30,6 +30,7 @@ func NewMatchMaker(players []*player.Player, logger *helpers.TournamentLogger) *
 	return mM
 }
 
+// sorts players based on Adjusted Elo
 func QuickSort(players *[]*player.Player, low, high int) {
 	if low < high {
 		pi := partition(players, low, high)
