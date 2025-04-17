@@ -3,6 +3,7 @@ package tournament_test
 import (
 	"testing"
 
+	"TournamentProject/helpers"
 	"TournamentProject/tournament"
 )
 
@@ -10,7 +11,7 @@ func TestQuickSort(t *testing.T) {
 	players := tournament.CreatePlayers()
 	low := 0
 	high := 0
-	tournament.QuickSort(&players, low, high)
+	helpers.QuickSort(&players, low, high)
 
 	for i := range len(players) - 1 {
 		if players[i].AdjustedElo < players[i+1].AdjustedElo {

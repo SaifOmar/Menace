@@ -5,12 +5,15 @@ import (
 	"math/rand"
 
 	"TournamentProject/helpers"
+	"TournamentProject/luck"
 	"TournamentProject/player"
 )
 
 type Match struct {
-	Players  [2]*player.Player
-	Winner   *player.Player
+	Players [2]*player.Player
+	Winner  *player.Player
+	k       float32
+	*luck.Luck
 	Duration int
 	Finished bool
 	Logger   *helpers.TournamentLogger
@@ -22,10 +25,19 @@ func NewMatch(players [2]*player.Player, logger *helpers.TournamentLogger) *Matc
 		Finished: false,
 		Duration: 10,
 		Logger:   logger,
+		Luck:     luck.NewLuck(),
 	}
 	logger.Info(fmt.Sprintf("%s is facing %s", players[0].Name, players[1].Name))
 	M.FirstBlow()
 	return M
+}
+
+func (match *Match) SetKfactor(k float32) {
+	match.k = k
+}
+
+func (match *Match) GetKfactor() float32 {
+	return match.k
 }
 
 func (match *Match) FirstBlow() *Match {
@@ -44,12 +56,16 @@ func (match *Match) FirstBlow() *Match {
 
 func (match *Match) FinishMatch() *Match {
 	match = match.runMatch()
+	match.endMatch()
+	return match
+}
+
+func (match *Match) endMatch() {
 	match.Logger.Info("Match is over")
 	match.Logger.Info(fmt.Sprintf("%s has won the match", match.Winner.Name))
 	for _, p := range match.Players {
 		p.Hp = 100
 	}
-	return match
 }
 
 func (match *Match) randomHit() *Match {
@@ -71,23 +87,32 @@ func (match *Match) runMatch() *Match {
 }
 
 func (match *Match) matchHit(hitter *player.Player, hittee *player.Player) {
-	// 50% chance to call the get lucky
-	// if helpers.Random(100) > 50 {
-	// getLucky()
-	// }
+	luck := match.GetLucky()
+	if luck.Value != "Unlucky" {
+		match.Logger.Debug("Someone just got Lucky")
+		match.applyEffect(luck)
+	}
 	hitter.Hit(hittee)
 	hitter.AbilityHit(hittee)
-	s := checkPlayerHp(hittee)
-	if s == "dead" {
-		match.Finished = true
-		match.Winner = hitter
-	}
+	match.checkForEnd()
 	match.Logger.Info(fmt.Sprintf("%s has hit %s and his hp is %d", hitter.Name, hittee.Name, hittee.Hp))
 }
 
-func checkPlayerHp(p *player.Player) string {
-	if p.Hp == 0 {
-		return "dead"
+func (match *Match) applyEffect(luck *luck.Luck) {
+	target := match.Players[luck.Player]
+	target.Hp -= luck.Damage
+	match.Logger.Debug(luck.Note)
+}
+
+func (match *Match) checkForEnd() {
+	for _, p := range match.Players {
+		if p.Hp <= 0 {
+			match.Finished = true
+			match.Winner = match.Players[1]
+			if match.Winner == p {
+				match.Winner = match.Players[0]
+			}
+			break
+		}
 	}
-	return "alive"
 }

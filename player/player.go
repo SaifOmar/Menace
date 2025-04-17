@@ -26,6 +26,7 @@ type Player struct {
 	Record
 }
 
+// !FIX very very very bad should be a builder pattern instead of this mess
 func NewPlayer(name string, height int, weight int, strength int, stamina int, iq int, passiveAbility Ability, firstAbility Ability) *Player {
 	player := &Player{
 		Hp:          100, // calculated attr
@@ -84,6 +85,7 @@ func (p Player) calculateSkillLevel() float64 {
 	v = normlizeValues(v)
 
 	skillLevel := 0.0
+	// calculate the skill level based on player normalized stat values
 	for k := range v {
 		skillLevel = skillLevel + (w[k] * float64(v[k]))
 	}
@@ -105,13 +107,17 @@ func normlizeValues(v map[string]float64) map[string]float64 {
 		"height":   222,
 		"weight":   140,
 	}
+	// normalize values
 	for k := range v {
+		// if the value is more than the max it sets it to the max
 		if v[k] > max[k] {
 			v[k] = max[k]
 		}
+		// if the value is less than the min it sets it to the min
 		if v[k] < min[k] {
 			v[k] = min[k]
 		}
+		// normalize the value
 		v[k] = (v[k] - min[k]) / (max[k] - min[k])
 	}
 

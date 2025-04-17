@@ -13,12 +13,20 @@ type logger interface {
 	Info(mesage string)
 	GetLogs()
 	Check(message string)
+	Debug(message string)
+	EnableDebug()
 }
+
+const (
+	NoDebug   = iota
+	Debug     = 1
+	DebugOnly = 2
+)
 
 type TournamentLogger struct {
 	logs      []string
 	logToFile bool
-	debug     bool
+	debug     int
 	fileName  string
 }
 
@@ -27,27 +35,30 @@ func NewTournamentLogger(logToFile bool, fileName string) *TournamentLogger {
 		logs:      []string{},
 		logToFile: logToFile,
 		fileName:  fileName,
+		debug:     NoDebug,
 	}
 	return l
 }
 
 func (l *TournamentLogger) Log(level, message string) {
+	if level == "DEBUG" {
+		if l.debug != Debug && l.debug != DebugOnly {
+			return
+		}
+	}
+	if l.debug == DebugOnly && level != "DEBUG" {
+		return
+	}
+
 	timeStamp := time.Now().Local().Format(time.ANSIC)
 	logEntry := fmt.Sprintf("[%s],[%s] : %s", timeStamp, level, message)
 	l.logs = append(l.logs, logEntry)
 	if l.logToFile {
-		if l.debug {
-			if !(level == "ERROR" || level == "INFO") {
-				l.writeToFile(logEntry)
-			}
-		} else {
-			l.writeToFile(logEntry)
-		}
+		l.writeToFile(logEntry)
 	}
 }
 
 func (l *TournamentLogger) Debug(message string) {
-	l.debug = true
 	l.Log("DEBUG", message)
 }
 
@@ -63,8 +74,12 @@ func (l *TournamentLogger) GetLogs() {
 	fmt.Printf("%s", l.logs)
 }
 
+func (l *TournamentLogger) EnableDebug(debugLevel int) {
+	l.debug = debugLevel
+}
+
 func (l *TournamentLogger) writeToFile(logEntry string) {
-	if l.debug {
+	if l.debug == DebugOnly || l.debug == Debug {
 		l.fileName = "debug.log"
 	}
 	file, err := os.OpenFile(l.fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
