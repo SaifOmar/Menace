@@ -1,6 +1,6 @@
 package ranks
 
-// all ranks
+// All ranks
 // each rank is 4 division higher than the previous one, and each division is 100 point to pass
 const (
 	Iron        = 900 // base stat

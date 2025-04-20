@@ -53,13 +53,13 @@ func (l *Luck) Regenerate() {
 }
 
 func (l *Luck) GetLucky() *Luck {
-	if !(l.Pool >= 0.0) {
+	if !(l.Pool > 0.0) {
 		return l
 	}
-	n := helpers.Random(101)
+	n := helpers.Random(100)
 	switch {
 	// 1%
-	case n >= 100:
+	case n > 100:
 		{
 			l.Pool -= Legendary
 			l.Value = "Lucky"
@@ -68,7 +68,7 @@ func (l *Luck) GetLucky() *Luck {
 		}
 
 		// 5%
-	case n >= 60:
+	case (30 <= n) && (n <= 60):
 		{
 			l.Pool -= Epic
 			l.Value = "Lucky"
@@ -76,7 +76,7 @@ func (l *Luck) GetLucky() *Luck {
 			break
 		}
 		// 10%
-	case n >= 30:
+	case (20 <= n) && (n < 30):
 		{
 			l.Pool -= Legendary
 			l.Value = "Lucky"
@@ -103,25 +103,12 @@ func (l *Luck) Die() {
 	l.SetDamage(1000)
 }
 
-// func (l *Luck) Immunity() {
-// 	l.EffectResult = *NewEffectResult(-100, "Bro He just Jumped Off!")
-// 	return
-// }
-
-// func Reflect(p *player.Player) {
-// }
-
-// func Armor(p *player.Player) {
-// }
 func (l *Luck) Heal() {
 	n := helpers.Random(100)
 	player := rollPlayer()
 	l.EffectResult = *NewEffectResult(player, fmt.Sprintf("healed by %d", n))
 	l.SetDamage(-n)
 }
-
-// func Crit(p *player.Player) {
-// }
 
 func (l *Luck) OutPlay() {
 	player := rollPlayer()
@@ -192,3 +179,17 @@ func (l *Luck) luckyBitch() {
 		// 	}
 	}
 }
+
+// func (l *Luck) Immunity() {
+// 	l.EffectResult = *NewEffectResult(-100, "Bro He just Jumped Off!")
+// 	return
+// }
+
+// func Reflect(p *player.Player) {
+// }
+
+// func Armor(p *player.Player) {
+// }
+
+// func Crit(p *player.Player) {
+// }

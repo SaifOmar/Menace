@@ -100,7 +100,7 @@ func (match *Match) matchHit(hitter *player.Player, hittee *player.Player) {
 
 func (match *Match) applyEffect(luck *luck.Luck) {
 	target := match.Players[luck.Player]
-	target.Hp -= luck.Damage
+	target.Hp -= luck.Damage //-20
 	match.Logger.Debug(luck.Note)
 }
 

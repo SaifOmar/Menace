@@ -23,27 +23,52 @@ type Player struct {
 
 	SkillLevel float64
 
-	Record
+	// Record
 }
 
 // !FIX very very very bad should be a builder pattern instead of this mess
-func NewPlayer(name string, height int, weight int, strength int, stamina int, iq int, passiveAbility Ability, firstAbility Ability) *Player {
+
+func NewPlayer(name string) *Player {
 	player := &Player{
+		Name:        name,
 		Hp:          100, // calculated attr
 		Elo:         900, // base stat(something to calc dmg)
-		Name:        name,
-		Height:      height,
-		Weight:      weight,
-		Strength:    strength,
-		Stamina:     stamina,
-		Iq:          iq,
-		Passive:     passiveAbility,
-		Ability:     firstAbility,
 		AdjustedElo: 900,
 		WP:          100.00,
 	}
 	player.SkillLevel = player.calculateSkillLevel()
 	return player
+}
+
+func (p *Player) AddHeight(n int) *Player {
+	p.Height = n
+	return p
+}
+
+func (p *Player) AddWeight(n int) *Player {
+	p.Weight = n
+	return p
+}
+
+func (p *Player) AddStamina(n int) *Player {
+	p.Stamina = n
+	return p
+}
+
+func (p *Player) AddStrength(n int) *Player {
+	p.Strength = n
+	return p
+}
+
+func (p *Player) AddIq(n int) *Player {
+	p.Iq = n
+	return p
+}
+
+func (p *Player) AttatchAbilites(a1 Ability, a2 Ability) *Player {
+	p.Ability = a1
+	p.Passive = a2
+	return p
 }
 
 func (player Player) Hit(oponnent *Player) *Player {
